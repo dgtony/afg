@@ -1,0 +1,7 @@
+ve
+*.pyc
+*.pyo
+.DS*
+.idea
+
+*.log

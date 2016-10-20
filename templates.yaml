@@ -1,0 +1,14 @@
+welcome:
+    "Welcome to the digital universe! So, would you like a coffee?"
+
+choose_coffemaker:
+    "Tell me, please, number of the coffemaker you want to use?"
+
+user_pin:
+    "Well, may I ask your pin code, please?"
+
+ready:
+    "Ok, I've started your coffemaker number {{number}}, wait a minute and take it"
+
+help:
+    "Well, better read the manuals, my friend"

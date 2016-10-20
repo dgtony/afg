@@ -1,0 +1,12 @@
+s1:
+    type: statement
+    speech: hi
+    card:
+s2a:
+    type: question
+    speech: whats your name
+    card: name stage
+s2b:
+    type: question
+    speech: favourite fruit?
+    card: next step

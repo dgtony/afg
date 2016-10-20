@@ -1,0 +1,71 @@
+# Describe each step in voice interaction scenario
+
+init:
+    type: statement
+    speech: "Welcome to the smart home! Would you like a coffee?"
+    reprompt: "So, would you like a coffee?"
+    next_step: 1
+    card:
+
+
+
+
+choose_coffemaker:
+    type: question
+    speech: "Tell me, please, number of the coffemaker you want to use?"
+    reprompt: "Could you repeat coffemaker number?"
+    next_step: 2
+    card:
+      type: simple
+      title:
+      content:
+
+
+2:
+    type: question
+    speech: favourite fruit?
+    card:
+    next step:
+
+
+########################## New approach ###########################
+# At first on_session_started handler must set initial scenario step in session attributes.
+#
+# On each consequent step parser get current scenario step name and invocation event name
+# 1) verify if event trigger is allowed for current scenario step (event name in list of invocation_event_names),
+# if not return 'bad_trigger' and reprompt;
+# 2) if event is correct, parse: get next scenario step to set as current, action to perform and response
+#
+
+
+# example of one scenario step description
+step_name_1:
+  reprompt: "reprompt text for current scenario step"
+  events:
+    # event trigger #1
+    invocation_event_name_1:
+      next_step: next_scenario_step_name
+      action: action_name_1
+      response:
+        type: question/statement
+        speech: "text to pronounce"
+        card:
+          type: simple
+          info:
+            title: "some title"
+            content: "some text to be shown in card"
+
+    # event trigger #2
+    invocation_event_name_2:
+      next_step: next_scenario_step_name
+      action: action_name_2
+      response:
+        type: question/statement
+        speech: "text to pronounce"
+        card:
+          type: standard
+          info:
+            title: "title text"
+            text: "card text"
+            small_image_url: "small pic URL"
+            large_image_url: "large pic URL"
