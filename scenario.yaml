@@ -14,18 +14,15 @@
 # where to start
 first_step: init
 
-# example of scenario with one step description
 steps:
-## Step
+## Step #1
   init:
     reprompt: "So, would you like a coffee?"
     events:
       launched:
         next_step: activate_coffeemaker
-        response:
-          speech: "Hello! Would you like a coffee?"
 
-## Step
+## Step #2
   activate_coffeemaker:
     reprompt: "Yes or no, please"
     events:
@@ -33,47 +30,20 @@ steps:
       start_coffee:
         next_step: coffeemaker_choice
 
-        response:
-          speech: "Choose coffemaker, please"
-
       # event trigger #2
       stop_coffee:
-        action: stop_the_party
-        response:
-          speech: "stopping"
+        next_step:
 
-## Step
+## Step #3
   coffeemaker_choice:
     reprompt: "Tell me number, please"
     events:
       choose_coffemaker:
         next_step: enter_pin
-        action: save_coffeemaker_number
-        response:
-          speech: "Tell me your pin code, please"
 
-## Step
+## Step #4
   enter_pin:
     reprompt: "Tell me the code"
     events:
       make_coffee:
-        action: make_coffee
-        response:
-          speech: "Ok, take your coffee from machine {{cfm_num}}, please"
-          card:
-            type: simple
-            info:
-              title: "Coffee order"
-              content: "Pull your coffee from chosen machine"
-
-#
-# card description variant
-#
-#         card:
-#         type: standard
-#         info:
-#           title: "title text"
-#           text: "card text"
-#           small_image_url: "small pic URL"
-#           large_image_url: "large pic URL"
-#
+        next_step:

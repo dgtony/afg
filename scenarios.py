@@ -5,6 +5,11 @@ from flask import render_template_string
 from flask_ask import statement, question, session
 
 
+import copy
+from fysom import Fysom, FysomError
+import time
+
+
 class ScenarioError(ValueError):
     pass
 
@@ -24,12 +29,6 @@ class CurrentStepUndefined(UndefinedStep):
 class StateDuplicates(ScenarioError):
     pass
 
-
-def _get_caller_name(nesting_level=4):
-    """
-    Use reflection to obtain trigger name
-    """
-    return inspect.stack()[nesting_level].function
 
 
 def action2fun(action_name):
@@ -53,6 +52,75 @@ def error_catcher(fun):
         return response
     return wrapper
 
+
+######################
+
+
+def _get_caller_name(nesting_level=3):
+    """
+    Use reflection to obtain trigger name
+    """
+    return inspect.stack()[nesting_level].function
+
+
+class UninitializedStateMachine(ValueError):
+    pass
+
+
+class Supervisor(object):
+
+    def __init__(self, filename):
+        super(Supervisor, self).__init__()
+        with open(filename, 'r') as fd:
+            data = yaml.load(fd)
+        first_step = data['first_step']
+        scenario_steps = data['steps']
+
+        ev_trans = self._prepare_fsm(scenario_steps)
+
+        # TODO: validate for connectivity
+
+        # load this shit
+        self.reference_fsm = Fysom(initial=first_step, events=ev_trans)
+        self.session_states = {}
+
+    @classmethod
+    def _prepare_fsm(cls, steps):
+        event_transitions = []
+        for step in steps.keys():
+            event_transitions.extend([{'name': event, 'src': step, 'dst': steps[step]['events'][event]['next_step']}
+                                for event in steps[step]['events'].keys() if steps[step]['events'][event] is not None])
+        return event_transitions
+
+    def start(self):
+        self.session_states[session.sessionId] = {
+            'fsm': copy.deepcopy(self.reference_fsm),
+            'mod_time': time.time()
+        }
+
+    def stop(self):
+        del self.session_states[session.sessionId]
+
+    def proceed(self):
+        sid = session.sessionId
+        if sid not in self.session_states.keys():
+            raise UninitializedStateMachine("session {} didn't initialize its state machine".format(sid))
+        fsm = self.session_states[session.sessionId]['fsm']
+
+        invocation_trigger = _get_caller_name()
+
+        # TODO: remove debug
+        print("invocation trigger for session {}: {}".format(sid, invocation_trigger))
+
+        if fsm.can(invocation_trigger):
+            # move fsm to new allowed state
+            fsm.trigger(invocation_trigger)
+            return True
+
+    # TODO: periodically clean old unfinished state machines (what is session max lifetime?)
+
+
+################################
 
 class Scenario(object):
 

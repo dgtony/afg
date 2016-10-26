@@ -77,7 +77,7 @@ def session_ended():
 
 if __name__ == "__main__":
     # load scenarios
-    scenario_file = "./scenarios.yaml"
+    scenario_file = "./scenario.yaml"
     sp = scenarios.ScenarioProcessor(scenario_filename=scenario_file, server_app=app)
 
     # logging
