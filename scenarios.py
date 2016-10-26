@@ -1,6 +1,8 @@
 import actions
 import inspect
 import yaml
+from flask import render_template_string
+from flask_ask import statement, question, session
 
 
 class ScenarioError(ValueError):
@@ -23,7 +25,7 @@ class StateDuplicates(ScenarioError):
     pass
 
 
-def _get_caller_name(nesting_level=3):
+def _get_caller_name(nesting_level=4):
     """
     Use reflection to obtain trigger name
     """
@@ -35,9 +37,9 @@ def action2fun(action_name):
 
 
 def error_catcher(fun):
-    def wrapper(*args):
+    def wrapper(*args, **kwargs):
         try:
-            response = fun(*args)
+            response = fun(*args, **kwargs)
         except CurrentStepUndefined as e:
             response = {'type': 'error', 'reason': "current step undefined: {}".format(e)}
         except UnknownStep as e:
@@ -55,6 +57,7 @@ def error_catcher(fun):
 class Scenario(object):
 
     def __init__(self, filename):
+        super(Scenario, self).__init__()
         with open(filename, 'r') as fd:
             data = yaml.load(fd)
             self.first_step = data['first_step']
@@ -91,6 +94,8 @@ class Scenario(object):
     @error_catcher
     def follow_scenario(self, args_ctx, session_ctx):
         event_trigger = _get_caller_name()
+
+        # TODO: remove debug
         print("event trigger: {}".format(event_trigger))
 
         if 'step' not in session_ctx:
@@ -117,5 +122,59 @@ class Scenario(object):
             return {'type': 'ok', 'response': scenario_variant['response'],
                     'reprompt': self.scenario[current_step_name]['reprompt']}
 
-    def init_scenario(self, session_ctx):
+    def _init_scenario(self, session_ctx):
         session_ctx['step'] = self.first_step
+
+
+class ScenarioProcessor(object):
+
+    def __init__(self, scenario_filename, server_app):
+        super(ScenarioProcessor, self).__init__()
+        self.scenario = Scenario(scenario_filename)
+        self.app = server_app
+
+    def _parse_scenario_response(self, scen_parser_response: dict, response_render_args: dict, reprompt_render_args: dict):
+        if scen_parser_response['type'] == 'error':
+            self.app.logger.error(scen_parser_response['reason'])
+        elif scen_parser_response['type'] == 'bad_trigger':
+            return question(render_template_string(scen_parser_response['reprompt'], **reprompt_render_args))
+        elif scen_parser_response['type'] == 'ok':
+            # successful response
+            response = scen_parser_response['response']
+            if response['type'] == 'question':
+                alexa_response = question(render_template_string(response['speech'], **response_render_args))
+                if 'reprompt' in scen_parser_response and scen_parser_response['reprompt'] is not None:
+                    alexa_response = alexa_response.reprompt(render_template_string(scen_parser_response['reprompt'],
+                                                                             **reprompt_render_args))
+            else:
+                alexa_response = statement(render_template_string(response['speech'], **response_render_args))
+            # add card to response
+            if 'card' in response and response['card'] is not None:
+                response_card = response['card']
+                if response_card['type'] == 'standard':
+                    # make standard card
+                    alexa_response = alexa_response.standard_card(**response_card['info'])
+                else:
+                    # simple card
+                    alexa_response = alexa_response.simple_card(**response_card['info'])
+            return alexa_response
+        else:
+            self.app.logger.error("unknown response from scenario parser: {}".format(scen_parser_response['type']))
+
+    def process_event(self, action_args, response_render_args, reprompt_render_args):
+        # TODO: remove debug
+        self.app.logger.debug("current session attributes (before processing): {}".format(session.attributes))
+
+        scen_parser_response = self.scenario.follow_scenario(args_ctx=action_args, session_ctx=session.attributes)
+        return self._parse_scenario_response(scen_parser_response, response_render_args=response_render_args,
+                                             reprompt_render_args=reprompt_render_args)
+
+    def init_scenario(self, session_ctx):
+        self.scenario._init_scenario(session_ctx)
+
+
+# FIXME: got a problem with wrong input data. User defined actions cannot return errors by now,
+# FIXME: dunno how to change responses depending on it.
+# FIXME: Another problem is direct access to vars, especially in session context. Incapsulate somehow?
+
+# FIXME: problem: current implementation use one state machine for all sessions, kindda shitty ;(

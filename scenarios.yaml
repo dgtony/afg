@@ -59,7 +59,7 @@ steps:
       make_coffee:
         action: make_coffee
         response:
-          speech: "Ok, take your coffee, please"
+          speech: "Ok, take your coffee from machine {{cfm_num}}, please"
           card:
             type: simple
             info:

@@ -3,8 +3,13 @@
 
 # action definitions
 def save_coffemaker_number(args_ctx, session_ctx):
-    print("ok, I'll save coffeemaker #{} in session context".format(args_ctx['cfm_num']))
-    session_ctx['cfm_number'] = args_ctx['cfm_num']
+    # verify args here
+    cfm_num = args_ctx['cfm_num']
+    if cfm_num is not None:
+        print("ok, I'll save coffeemaker #{} in session context".format(args_ctx['cfm_num']))
+        session_ctx['cfm_number'] = args_ctx['cfm_num']
+    else:
+        print("holly shit, what is coffeemaker: {}".format(cfm_num))
 
 
 def make_coffee_request(args_ctx, session_ctx):
@@ -60,3 +65,6 @@ def make_action(action_name, args_ctx, session_ctx):
     verify_args(action_name, args_ctx, session_ctx)
     required_args = {arg_name: args_ctx[arg_name] for arg_name in action_map[action_name][1]}
     return action_map[action_name][0](required_args, session_ctx)
+
+
+# FIXME: logging instead of printing in actions
