@@ -73,15 +73,15 @@ class Supervisor(object):
         super(Supervisor, self).__init__()
         with open(filename, 'r') as fd:
             data = yaml.load(fd)
-        first_step = data['first_step']
-        scenario_steps = data['steps']
+        self.first_step = data['first_step']
+        self.scenario_steps = data['steps']
 
-        ev_trans = self._prepare_fsm(scenario_steps)
+        ev_trans = self._prepare_fsm(self.scenario_steps)
 
         # TODO: validate for connectivity
 
         # load this shit
-        self.reference_fsm = Fysom(initial=first_step, events=ev_trans)
+        self.reference_fsm = Fysom(initial=self.first_step, events=ev_trans)
         self.session_states = {}
 
     @classmethod
@@ -93,6 +93,10 @@ class Supervisor(object):
         return event_transitions
 
     def start(self):
+
+        # TODO: remove debug
+        print("start FSM for session {}".format(session.sessionId))
+
         self.session_states[session.sessionId] = {
             'fsm': copy.deepcopy(self.reference_fsm),
             'mod_time': time.time()
@@ -100,6 +104,9 @@ class Supervisor(object):
 
     def stop(self):
         del self.session_states[session.sessionId]
+
+        # TODO: remove debug
+        print("delete FSM for session {}".format(session.sessionId))
 
     def proceed(self):
         sid = session.sessionId
@@ -112,10 +119,14 @@ class Supervisor(object):
         # TODO: remove debug
         print("invocation trigger for session {}: {}".format(sid, invocation_trigger))
 
+        # TODO: think about: maybe move this behaviour to event decorator?
         if fsm.can(invocation_trigger):
             # move fsm to new allowed state
             fsm.trigger(invocation_trigger)
-            return True
+            return True, None
+        else:
+            # return reprompt for current state
+            return False, self.scenario_steps[fsm.current]['reprompt']
 
     # TODO: periodically clean old unfinished state machines (what is session max lifetime?)
 
