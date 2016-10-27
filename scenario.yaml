@@ -20,7 +20,7 @@ steps:
     reprompt: "So, would you like a coffee?"
     events:
       launched:
-        next_step: activate_coffeemaker
+        next: activate_coffeemaker
 
 ## Step #2
   activate_coffeemaker:
@@ -28,22 +28,20 @@ steps:
     events:
       # event trigger #1
       start_coffee:
-        next_step: coffeemaker_choice
+        next: coffeemaker_choice
 
       # event trigger #2
       stop_coffee:
-        next_step:
 
 ## Step #3
   coffeemaker_choice:
     reprompt: "Tell me number, please"
     events:
       choose_coffemaker:
-        next_step: enter_pin
+        next: enter_pin
 
 ## Step #4
   enter_pin:
     reprompt: "Tell me the code"
     events:
       make_coffee:
-        next_step:
