@@ -1,28 +1,24 @@
-########################## New approach ###########################
-# At first on_session_started handler must set initial scenario step in session attributes.
-#
-# On each consequent step parser get current scenario step name and invocation event name
-# 1) verify if event trigger is allowed for current scenario step (event name in list of invocation_event_names),
-# if not return 'bad_trigger' and reprompt;
-# 2) if event is correct, parse: get next scenario step to set as current, action to perform and response
-#
-#
-# No need to describe StopIntent, CancelIntent etc here
-# just implement statement return in handler
+################## Scenario description ########################
+# At first initial and finish scenario steps must be set.
+# After that describe each step of your scenario in a declarative way.
 #
 
-# where to start
+# start and finish steps in scenario
 first_step: init
+last_step: stop
 
+# description of each step
 steps:
-## Step #1
+  # step name
   init:
+    # reprompt on erroneous input
     reprompt: "So, would you like a coffee?"
     events:
+      # allowed event trigger
       launched:
+        # where to move from here?
         next: activate_coffeemaker
 
-## Step #2
   activate_coffeemaker:
     reprompt: "Yes or no, please"
     events:
@@ -32,16 +28,18 @@ steps:
 
       # event trigger #2
       stop_coffee:
+        next: stop
 
-## Step #3
   coffeemaker_choice:
     reprompt: "Tell me number, please"
     events:
       choose_coffemaker:
         next: enter_pin
 
-## Step #4
   enter_pin:
     reprompt: "Tell me the code"
     events:
       make_coffee:
+        next: stop
+
+  stop:

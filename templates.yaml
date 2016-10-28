@@ -12,3 +12,6 @@ ready:
 
 help:
     "Well, better read the manuals, my friend"
+
+stop:
+    "Ok, see you later"
