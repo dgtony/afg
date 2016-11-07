@@ -19,10 +19,6 @@ def new_session():
 @ask.launch
 @sup.guide
 def launched():
-
-    # TODO: remove debug
-    print("launched invoked!!! context: {}".format(locals()))
-
     return question(render_template('welcome'))
 
 
@@ -47,9 +43,7 @@ def choose_coffemaker(cfm_num):
         return sup.reprompt_error
 
     if cfm_num > 3:
-        # TODo: remove
         app.logger.error("O'rly? you've got {} coffemakers?".format(cfm_num))
-
         return sup.reprompt_error
 
     session.attributes['coffemaker_number'] = cfm_num
@@ -60,10 +54,6 @@ def choose_coffemaker(cfm_num):
 @sup.guide
 def make_coffee(pin):
     if pin in convert_errors:
-
-        # TODo: remove
-        app.logger.error("holy shit, what is pin: {}".format(pin))
-
         return sup.reprompt_error
 
     app.logger.info("user enter PIN-code: {}".format(pin))

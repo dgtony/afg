@@ -1,7 +1,11 @@
 from flask_ask import question, statement, session
 from statem import FSMStore, UninitializedStateMachine
+import logging
 import wrapt
 import yaml
+
+
+logger = logging.getLogger('scenario guide')
 
 
 class UndefinedState(KeyError):
@@ -62,10 +66,6 @@ class Supervisor(object):
         # validate scenario for connectivity (unreachable states) and undefined states
         validate_scenario(self._first_step, self._scenario_steps)
         self.transition_map = self._get_fsm_transitions()
-
-        # TODO: remove debug
-        print("scenario transition rules: {}".format(self.transition_map))
-
         self.session_machines = FSMStore(self._first_step, self._last_step, self.transition_map)
 
     def _get_fsm_transitions(self):
@@ -78,12 +78,7 @@ class Supervisor(object):
         return event_transitions
 
     @wrapt.decorator
-    def start(self, handler, instance, args, kwargs):
-
-        # TODO: remove debug
-        print("instance: {}, self: {}".format(instance, self))
-        print("start FSM for session {}".format(session.sessionId))
-
+    def start(self, handler, _instance, args, kwargs):
         # create state machine for current session
         self.session_machines.create_fsm(session.sessionId)
         return handler(*args, **kwargs)
@@ -92,51 +87,26 @@ class Supervisor(object):
     def stop(self, handler, _instance, args, kwargs):
         try:
             self.session_machines.delete_fsm(session.sessionId)
-
-            # TODO: remove debug
-            print("instance: {}, self: {}".format(_instance, self))
-            print("delete FSM for session {}".format(session.sessionId))
-
             return handler(*args, **kwargs)
 
         except UninitializedStateMachine as e:
-
-            # TODO: remove debug
-            print("catch: {}".format(e))
-
+            logger.error(e)
             return statement('server error occured')
 
     @wrapt.decorator
     def guide(self, handler, _instance, args, kwargs):
-
-        # TODO: remove debug
-        print("handler decorator")
-        print("instance: {}, self: {}".format(_instance, self))
-        print("args: {}".format(args))
-        for k, v in kwargs.items():
-            print("{}: {}".format(k,v))
-
         try:
             invocation_trigger = handler.__name__
             session_id = session.sessionId
             if self.session_machines.can(session_id, invocation_trigger):
-                # TODO: remove debug
-                print("ok, moved fsm to: {}".format(self.session_machines.current_state(session_id)))
                 return handler(*args, **kwargs)
             else:
-
-                # TODO: remove debug
-                print("transition not allowed, reprompt")
                 current_state = self.session_machines.current_state(session_id)
                 return question(self._scenario_steps[current_state]['reprompt'])
 
         except UninitializedStateMachine as e:
-
-            # TODO: remove debug
-            print("catch: {}".format(e))
-
+            logger.error(e)
             return statement('server error occured')
-
 
     @property
     def reprompt_error(self):
@@ -149,11 +119,5 @@ class Supervisor(object):
             current_state = self.session_machines.current_state(session_id)
             return question(self._scenario_steps[current_state]['reprompt'])
         except UninitializedStateMachine as e:
-
-            # TODO: remove debug
-            print("catch: {}".format(e))
-
+            logger.error(e)
             return statement('server error occured')
-
-
-    # TODO: periodically clean old unfinished state machines (what is session max lifetime?)

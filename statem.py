@@ -76,16 +76,10 @@ class FSMCleaner(threading.Thread):
         self.last_step = last_step
         self.setDaemon(True)
         self.setName("fsm-cleaner")
-        # TODO: remove
-        print("cleaner started")
 
     def run(self):
         while True:
             time.sleep(CLEAN_PERIOD)
-
-            # TODO: remove
-            print("checkout store: {}".format(self.store))
-
             with self.store_lock:
                 self.make_clean()
 
