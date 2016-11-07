@@ -1,45 +1,40 @@
-################## Scenario description ########################
+################## Scenario description ##############################
 # At first initial and finish scenario steps must be set.
-# After that describe each step of your scenario in a declarative way.
-#
+# After that describe each step of your scenario in a declarative way
+######################################################################
 
 # start and finish steps in scenario
-first_step: init
-last_step: stop
+first_step: init_dialog
+last_step: stop_dialog
 
 # description of each step
 steps:
   # step name
-  init:
+  init_dialog:
     # reprompt on erroneous input
-    reprompt: "So, would you like a coffee?"
+    reprompt: "Ask the skill to launch it properly"
     events:
       # allowed event trigger
       launched:
         # where to move from here?
-        next: activate_coffeemaker
+        next: activate_machine
 
-  activate_coffeemaker:
+  activate_machine:
     reprompt: "Yes or no, please"
     events:
       # event trigger #1
       start_coffee:
-        next: coffeemaker_choice
+        next: choose_how_many_cups
 
       # event trigger #2
-      stop_coffee:
-        next: stop
+      no_more_coffee:
+        next: stop_dialog
 
-  coffeemaker_choice:
-    reprompt: "Tell me number, please"
-    events:
-      choose_coffemaker:
-        next: enter_pin
-
-  enter_pin:
-    reprompt: "Tell me the code"
+  choose_how_many_cups:
+    reprompt: "Be realistic, please"
     events:
       make_coffee:
-        next: stop
+        next: stop_dialog
 
-  stop:
+# no need to describe last step
+  stop_dialog:
