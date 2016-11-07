@@ -3,8 +3,8 @@ import threading
 from fysom import Fysom
 
 
-CLEAN_PERIOD = 10
-MAX_SESSION_LIFETIME = 300
+CLEAN_PERIOD = 60
+MAX_SESSION_LIFETIME = 3600
 
 
 class UninitializedStateMachine(ValueError):

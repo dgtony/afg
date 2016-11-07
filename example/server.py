@@ -2,12 +2,12 @@ import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, render_template
 from flask_ask import Ask, statement, question, session, convert_errors
-import scenarios
+from afg import Supervisor
 
 
 app = Flask("stupid Alexa bot")
 ask = Ask(app, '/')
-sup = scenarios.Supervisor("scenario.yaml")
+sup = Supervisor("scenario.yaml")
 
 
 @ask.on_session_started

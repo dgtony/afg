@@ -1,11 +1,14 @@
 from flask_ask import question, statement, session
-from statem import FSMStore, UninitializedStateMachine
+from .statem import FSMStore, UninitializedStateMachine
 import logging
 import wrapt
 import yaml
 
 
 logger = logging.getLogger('scenario guide')
+
+
+INTERNAL_ERROR_MSG = 'server error occured'
 
 
 class UndefinedState(KeyError):
@@ -91,7 +94,7 @@ class Supervisor(object):
 
         except UninitializedStateMachine as e:
             logger.error(e)
-            return statement('server error occured')
+            return statement(INTERNAL_ERROR_MSG)
 
     @wrapt.decorator
     def guide(self, handler, _instance, args, kwargs):
@@ -106,7 +109,7 @@ class Supervisor(object):
 
         except UninitializedStateMachine as e:
             logger.error(e)
-            return statement('server error occured')
+            return statement(INTERNAL_ERROR_MSG)
 
     @property
     def reprompt_error(self):
@@ -120,4 +123,4 @@ class Supervisor(object):
             return question(self._scenario_steps[current_state]['reprompt'])
         except UninitializedStateMachine as e:
             logger.error(e)
-            return statement('server error occured')
+            return statement(INTERNAL_ERROR_MSG)
