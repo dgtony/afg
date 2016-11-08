@@ -25,6 +25,10 @@ class FSMStore(object):
     def _update_access_time(self, session_id):
         self.store[session_id]['access_time'] = time.time()
 
+    def _verify_session_id(self, session_id):
+        if session_id not in self.store.keys():
+            raise UninitializedStateMachine("no machine for session: {}".format(session_id))
+
     def create_fsm(self, session_id):
         new_fsm = dict(fsm=Fysom(initial=self.first_step, events=self.transition_map),
                        access_time=time.time(), previous_step=None)
@@ -38,8 +42,7 @@ class FSMStore(object):
         self.lock.release()
 
     def can(self, session_id, trigger_event):
-        if session_id not in self.store.keys():
-            raise UninitializedStateMachine("no machine for session: {}".format(session_id))
+        self._verify_session_id(session_id)
         with self.lock:
             self._update_access_time(session_id)
             if self.store[session_id]['fsm'].can(trigger_event):
@@ -47,27 +50,25 @@ class FSMStore(object):
                 return True
 
     def current_state(self, session_id):
-        if session_id not in self.store.keys():
-            raise UninitializedStateMachine("no machine for session: {}".format(session_id))
+        self._verify_session_id(session_id)
         with self.lock:
             self._update_access_time(session_id)
             current_state = self.store[session_id]['fsm'].current
         return current_state
 
     def set_state(self, session_id, state_name):
-        if session_id not in self.store.keys():
-            raise UninitializedStateMachine("no machine for session: {}".format(session_id))
+        self._verify_session_id(session_id)
         with self.lock:
             self._update_access_time(session_id)
             self.store[session_id]['fsm'].current = state_name
 
     def delete_fsm(self, session_id):
-        if session_id not in self.store.keys():
-            raise UninitializedStateMachine("no machine for session: {}".format(session_id))
+        self._verify_session_id(session_id)
         with self.lock:
             del self.store[session_id]
 
     def rollback_fsm(self, session_id):
+        self._verify_session_id(session_id)
         with self.lock:
             self._update_access_time(session_id)
             previous_step = self.store[session_id]['previous_step']
