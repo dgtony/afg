@@ -124,3 +124,16 @@ class Supervisor(object):
         except UninitializedStateMachine as e:
             logger.error(e)
             return statement(INTERNAL_ERROR_MSG)
+
+    def move_to_step(self, step):
+        """
+        Use in cases when you need to move in given step depending on input
+        """
+        if step not in self._scenario_steps.keys():
+            raise UndefinedState("step {} not defined in scenario".format(step))
+        try:
+            session_id = session.sessionId
+            self.session_machines.set_state(session_id, step)
+        except UninitializedStateMachine as e:
+            logger.error(e)
+            return statement(INTERNAL_ERROR_MSG)
