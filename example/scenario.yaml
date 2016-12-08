@@ -6,6 +6,7 @@
 # start and finish steps in scenario
 first_step: init_dialog
 last_step: stop_dialog
+default_help: "You are using interactive coffeemaker. Would you like to proceed?"
 
 # description of each step
 steps:
@@ -21,6 +22,7 @@ steps:
 
   activate_machine:
     reprompt: "Yes or no, please"
+    help: "You need to decide, if you'd like a coffee. Say yes or no"
     events:
       # event trigger #1
       start_coffee:

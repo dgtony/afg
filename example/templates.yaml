@@ -1,14 +1,7 @@
-welcome:
-    "Welcome! Would you like a coffee?"
+welcome: "Welcome! Would you like a coffee?"
 
-how_many:
-    "How many cups of coffee would you like??"
+how_many: "How many cups of coffee would you like??"
 
-ready:
-    "Ok, wait a minute and take your coffee"
+ready: "Ok, wait a minute and take your coffee"
 
-help:
-    "Well, better read the manuals, my friend"
-
-stop:
-    "Ok, see you later"
+stop: "Ok, see you later"

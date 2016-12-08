@@ -64,6 +64,7 @@ class Supervisor(object):
             data = yaml.load(fd)
         self._first_step = data['first_step']
         self._last_step = data['last_step']
+        self._default_help = data['default_help']
         self._scenario_steps = data['steps']
 
         # validate scenario for connectivity (unreachable states) and undefined states
@@ -134,6 +135,23 @@ class Supervisor(object):
         try:
             session_id = session.sessionId
             self.session_machines.set_state(session_id, step)
+        except UninitializedStateMachine as e:
+            logger.error(e)
+            return statement(INTERNAL_ERROR_MSG)
+
+    def get_help(self):
+        """
+        Get context help, depending on the current step. If no help for current step
+        was specified in scenario description file, default one will be returned.
+        """
+        try:
+            session_id = session.sessionId
+            current_state = self.session_machines.current_state(session_id)
+            try:
+                return self._scenario_steps[current_state]['help']
+            except KeyError:
+                return self._default_help
+
         except UninitializedStateMachine as e:
             logger.error(e)
             return statement(INTERNAL_ERROR_MSG)

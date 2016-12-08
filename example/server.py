@@ -45,6 +45,12 @@ def make_coffee(cups_num):
     return statement(render_template('ready'))
 
 
+@ask.intent('AMAZON.HelpIntent')
+def help_user():
+    context_help = sup.get_help()
+    return question(context_help)
+
+
 @ask.session_ended
 @sup.stop
 def session_ended():
@@ -53,4 +59,4 @@ def session_ended():
 
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=1234, debug=False)
+    app.run(host='127.0.0.1', port=1234, debug=True)
