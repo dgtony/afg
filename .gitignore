@@ -1,7 +1,20 @@
+# virtualenv
 ve
+
+# python stuff
 *.pyc
 *.pyo
+__pycache__
+
+# mac
 .DS*
+
+# charm
 .idea
 
+# other
 *.log
+
+# PyPI
+MANIFEST
+dist/
