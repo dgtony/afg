@@ -139,19 +139,26 @@ class Supervisor(object):
             logger.error(e)
             return statement(INTERNAL_ERROR_MSG)
 
+    def get_current_state(self):
+        """
+        Get current state for user session or None if session doesn't exist
+        """
+        try:
+            session_id = session.sessionId
+            return self.session_machines.current_state(session_id)
+        except UninitializedStateMachine as e:
+            logger.error(e)
+
     def get_help(self):
         """
         Get context help, depending on the current step. If no help for current step
         was specified in scenario description file, default one will be returned.
         """
-        try:
-            session_id = session.sessionId
-            current_state = self.session_machines.current_state(session_id)
+        current_state = self.get_current_state()
+        if current_state is None:
+            return statement(INTERNAL_ERROR_MSG)
+        else:
             try:
                 return self._scenario_steps[current_state]['help']
             except KeyError:
                 return self._default_help
-
-        except UninitializedStateMachine as e:
-            logger.error(e)
-            return statement(INTERNAL_ERROR_MSG)
