@@ -4,39 +4,45 @@
 ######################################################################
 
 # start and finish steps in scenario
-first_step: init_dialog
-last_step: stop_dialog
-default_help: "You are using interactive coffeemaker. Would you like to proceed?"
+first_step: init
+last_step: done
+default_help: "You are talking to Alexa. What drink would you like?"
 
-# description of each step
 steps:
-  # step name
-  init_dialog:
-    # reprompt on erroneous input
-    reprompt: "Ask the skill to launch it properly"
+  # minimal description for the first step
+  init:
     events:
-      # allowed event trigger
       launched:
-        # where to move from here?
-        next: activate_machine
+        next: drink_choice
 
-  activate_machine:
-    reprompt: "Yes or no, please"
-    help: "You need to decide, if you'd like a coffee. Say yes or no"
+  # step name
+  drink_choice:
+    # reprompt if wrong intent was invoked
+    reprompt: "Sorry, I didn't understand, would you like tea or coffee?"
+    # help phrase for the current step
+    help: "You need to decide what drink you want. Say: tea or coffee"
     events:
       # event trigger #1
-      start_coffee:
-        next: choose_how_many_cups
-
+      choose_tea:
+        # where to move from here?
+        next: drink_amount_choice
       # event trigger #2
-      no_more_coffee:
-        next: stop_dialog
+      choose_coffee:
+        next: coffee_strength_choice
 
-  choose_how_many_cups:
-    reprompt: "Be realistic, please"
+  coffee_strength_choice:
+    reprompt: "Sorry, I didn't understand, what is your desired coffee strength?"
+    help: "Say: brew it weak or brew it strong"
     events:
-      make_coffee:
-        next: stop_dialog
+      choose_coffee_strength:
+        next: drink_amount_choice
+
+  drink_amount_choice:
+    reprompt: "Sorry, I didn't understand, how big your drink must be?"
+    help: "Say: make small or make big"
+    events:
+      choose_drink_amount:
+        next: done
 
 # no need to describe last step
-  stop_dialog:
+  done:

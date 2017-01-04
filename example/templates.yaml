@@ -1,7 +1,11 @@
-welcome: "Welcome! Would you like a coffee?"
+welcome: "Would you like tea or coffee?"
 
-how_many: "How many cups of coffee would you like??"
+coffee_strength: "Would you like to brew weak or strong coffee?"
 
-ready: "Ok, wait a minute and take your coffee"
+drink_amount: "Would you like to make it big or small?"
 
-stop: "Ok, see you later"
+drink_ready: "Ok, your {{ drink }} will be ready soon"
+
+stop: "See you later"
+
+cancel: "You interrupted the skill, bye"
