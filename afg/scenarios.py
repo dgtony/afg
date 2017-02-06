@@ -112,8 +112,7 @@ class Supervisor(object):
             logger.error(e)
             return statement(INTERNAL_ERROR_MSG)
 
-    @property
-    def reprompt_error(self):
+    def reprompt_error(self, message=None):
         """
         Intended to be used in case of erroneous input data
         """
@@ -121,7 +120,11 @@ class Supervisor(object):
             session_id = session.sessionId
             self.session_machines.rollback_fsm(session_id)
             current_state = self.session_machines.current_state(session_id)
-            return question(self._scenario_steps[current_state]['reprompt'])
+            if message is None:
+                err_msg = self._scenario_steps[current_state]['reprompt']
+            else:
+                err_msg = message
+            return question(err_msg)
         except UninitializedStateMachine as e:
             logger.error(e)
             return statement(INTERNAL_ERROR_MSG)
