@@ -57,7 +57,7 @@ def choose_coffee():
 def choose_coffee_strength(strength):
     # validate parameter
     if strength not in ['weak', 'strong']:
-        return sup.reprompt_error
+        return sup.reprompt_error()
     session.attributes['coffee_strength'] = strength
     return question(render_template('drink_amount'))
 
@@ -66,7 +66,7 @@ def choose_coffee_strength(strength):
 @sup.guide
 def choose_drink_amount(amount):
     if amount not in ['small', 'big']:
-        return sup.reprompt_error
+        return sup.reprompt_error("I'm not sure, make it big or small?")
 
     # make a drink
     drink = session.attributes['drink']
