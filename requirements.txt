@@ -2,3 +2,4 @@ PyYAML>=3.12
 Flask-Ask>=0.8.2
 fysom>=2.1.2
 wrapt>=1.10.8
+pytest>=3.0
