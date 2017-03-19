@@ -25,16 +25,25 @@ class FSMStore(object):
     def _update_access_time(self, session_id):
         self.store[session_id]['access_time'] = time.time()
 
+    def _get_previous_step(self, session_id):
+        if len(self.store[session_id]['previous_steps']) > 1:
+            return self.store[session_id]['previous_steps'].pop()
+        return self.store[session_id]['previous_steps'][0]
+
+    def _set_previous_step(self, session_id, step):
+        if self.store[session_id]['previous_steps'][-1] != step:
+            self.store[session_id]['previous_steps'].append(step)
+
     def _verify_session_id(self, session_id):
         if session_id not in self.store.keys():
             raise UninitializedStateMachine("no machine for session: {}".format(session_id))
 
     def create_fsm(self, session_id):
         new_fsm = dict(fsm=Fysom(initial=self.first_step, events=self.transition_map),
-                       access_time=time.time(), previous_step=None)
+                       access_time=time.time(), previous_steps=[self.first_step])
 
         def save_previous_step(ev):
-            self.store[session_id]['previous_step'] = ev.src
+            self._set_previous_step(session_id, ev.src)
 
         new_fsm['fsm'].onchangestate = save_previous_step
         self.lock.acquire()
@@ -60,7 +69,9 @@ class FSMStore(object):
         self._verify_session_id(session_id)
         with self.lock:
             self._update_access_time(session_id)
-            self.store[session_id]['fsm'].current = state_name
+            if self.store[session_id]['fsm'].current != state_name:
+                self._set_previous_step(session_id, self.store[session_id]['fsm'].current)
+                self.store[session_id]['fsm'].current = state_name
 
     def delete_fsm(self, session_id):
         self._verify_session_id(session_id)
@@ -71,8 +82,7 @@ class FSMStore(object):
         self._verify_session_id(session_id)
         with self.lock:
             self._update_access_time(session_id)
-            previous_step = self.store[session_id]['previous_step']
-            self.store[session_id]['fsm'].current = previous_step
+            self.store[session_id]['fsm'].current = self._get_previous_step(session_id)
 
 
 class FSMCleaner(threading.Thread):
