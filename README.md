@@ -1,5 +1,7 @@
 # Alexa Flask-ASK Guide library
 
+[![Build Status](https://travis-ci.org/dgtony/afg.svg?branch=master)](https://travis-ci.org/dgtony/afg)
+
 Library helps to build scenario-based conversational skills for voice communication service Amazon Alexa in Python. It is intended to be used jointly with the [Flask ASK](https://github.com/johnwheeler/flask-ask) framework.
 
 ## Install
