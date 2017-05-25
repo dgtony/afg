@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/dgtony/afg.svg?branch=master)](https://travis-ci.org/dgtony/afg)
 
-Library helps to build scenario-based conversational skills for voice communication service Amazon Alexa in Python. It is intended to be used jointly with the [Flask ASK](https://github.com/johnwheeler/flask-ask) framework.
+Library for building scenario-based conversational skills for voice communication service Amazon Alexa in Python. It is intended to be used jointly with the [Flask ASK](https://github.com/johnwheeler/flask-ask) framework.
 
 ## Install
 Package installation is trivial:
@@ -11,7 +11,7 @@ Package installation is trivial:
 pip install afg
 ```
 
-Tested mainly on Python >= 3.4.
+Tested on Python >= 3.4.
 
 
 ## Usage
@@ -39,7 +39,10 @@ Now we need to inform our library about desired scenario flow. It can be done wi
 # start and finish steps in scenario
 first_step: init
 last_step: done
-default_help: "You are talking to Alexa. What drink would you like?"
+default_help:
+  - "You are talking to Alexa. What drink would you like?"
+  - "Hi, I'm your barista, would you like tea or coffee?"
+
 
 steps:
   # minimal description for the first step
@@ -50,10 +53,14 @@ steps:
 
   # step name
   drink_choice:
-    # reprompt if wrong intent was invoked
-    reprompt: "Sorry, I didn't understand, would you like tea or coffee?"
-    # help phrase for the current step
-    help: "You need to decide what drink you want. Say: tea or coffee"
+    # if wrong intent was invoked, ask user again with one of the phrases (random choice)
+    reprompt:
+      - "Sorry, I didn't understand, would you like tea or coffee?"
+      - "Please, choose tea or coffee"
+    # help phrases for the current step
+    help:
+      - "You need to decide what drink you want. Say: tea or coffee"
+      - "Just say: tea or coffee"
     events:
       # event trigger #1
       choose_tea:
@@ -64,15 +71,24 @@ steps:
         next: coffee_strength_choice
 
   coffee_strength_choice:
-    reprompt: "Sorry, I didn't understand, what is your desired coffee strength?"
-    help: "Say: brew it weak or brew it strong"
+    reprompt:
+      - "Sorry, I didn't understand, what is your desired coffee strength?"
+      - "Say it again, what coffee strength do you prefer?"
+    help:
+      - "Say brew it weak or brew it strong"
+      - "Please define coffee strength: weak or strong?"
     events:
       choose_coffee_strength:
         next: drink_amount_choice
 
   drink_amount_choice:
-    reprompt: "Sorry, I didn't understand, how big your drink must be?"
-    help: "Say: make small or make big"
+    reprompt:
+      - "Sorry, I didn't understand, how big your drink must be?"
+      - "Please say, should it be small or big?"
+    help:
+      - "On the current step you need to choose amount of your drink"
+      - "Say small or big"
+
     events:
       choose_drink_amount:
         next: done
@@ -80,6 +96,9 @@ steps:
 # no need to describe last step
   done:
 ```
+
+*Note: afg >= 0.2.0 use lists of reprompt and help phrases instead of single phrases in the previous versions. Do not forget to update your scenarios!*
+
 
 In the fields `first_step` and `last_step` one just define names of the first and the last scenario steps. Next field `default_help` we will discuss a bit later.
 
@@ -202,7 +221,7 @@ def choose_drink_amount(amount):
         return question(render_template('welcome'))
 
     close_user_session()
-    return statement(render_template('drink_ready', drink=drink))
+    return statement(render_template('drink_ready', drink=drink, amount=amount))
 
 
 def make_tea(amount):
@@ -213,7 +232,7 @@ def make_coffee(amount, strength):
 
 ```
 
-Skill must ask user to repeat not only when wrong intent was invoked but also when input parameters are wrong. The problem here is that you can validate parameters only in handler function body but at this moment scenario state machine has already moved to the next step. Here supervisor's method `reprompt_error` can help. It rolls state machine back to the previous scenario step and returns Flask ASK `question` object with given message. If no message was passed into the method, it uses default reprompt on error for the current step, defined in scenario file.
+Skill must ask user to repeat not only when wrong intent was invoked but also when input parameters are wrong. The problem here is that you can validate parameters only in handler function body but at this moment scenario state machine has already moved to the next step. Here supervisor's method `reprompt_error` can help. It rolls state machine back to the previous scenario step and returns Flask ASK `question` object with given message. If no message was passed into the method, it uses one of default reprompts on error for the current step, defined in scenario file.
 
 Sometimes you may also need to move your dialog scenario on a certain step, depending on input parameters or some external information. It could be done explicitly with supervisor's method `move_to_step(<step_name>)`.
 
