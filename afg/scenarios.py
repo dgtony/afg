@@ -1,5 +1,6 @@
 from flask_ask import question, statement, session
 from .statem import FSMStore, UninitializedStateMachine
+from random import choice
 import logging
 import wrapt
 import yaml
@@ -106,7 +107,7 @@ class Supervisor(object):
                 return handler(*args, **kwargs)
             else:
                 current_state = self.session_machines.current_state(session_id)
-                return question(self._scenario_steps[current_state]['reprompt'])
+                return question(choice(self._scenario_steps[current_state]['reprompt']))
 
         except UninitializedStateMachine as e:
             logger.error(e)
@@ -121,7 +122,7 @@ class Supervisor(object):
             self.session_machines.rollback_fsm(session_id)
             current_state = self.session_machines.current_state(session_id)
             if message is None:
-                err_msg = self._scenario_steps[current_state]['reprompt']
+                err_msg = choice(self._scenario_steps[current_state]['reprompt'])
             else:
                 err_msg = message
             return question(err_msg)
@@ -162,6 +163,6 @@ class Supervisor(object):
             return statement(INTERNAL_ERROR_MSG)
         else:
             try:
-                return self._scenario_steps[current_state]['help']
+                return choice(self._scenario_steps[current_state]['help'])
             except KeyError:
-                return self._default_help
+                return choice(self._default_help)

@@ -6,7 +6,10 @@
 # start and finish steps in scenario
 first_step: init
 last_step: done
-default_help: "You are talking to Alexa. What drink would you like?"
+default_help:
+  - "You are talking to Alexa. What drink would you like?"
+  - "Hi, I'm your barista, would you like tea or coffee?"
+
 
 steps:
   # minimal description for the first step
@@ -17,10 +20,14 @@ steps:
 
   # step name
   drink_choice:
-    # reprompt if wrong intent was invoked
-    reprompt: "Sorry, I didn't understand, would you like tea or coffee?"
-    # help phrase for the current step
-    help: "You need to decide what drink you want. Say: tea or coffee"
+    # if wrong intent was invoked, ask user again with one of the phrases (random choice)
+    reprompt:
+      - "Sorry, I didn't understand, would you like tea or coffee?"
+      - "Please, choose tea or coffee"
+    # help phrases for the current step
+    help:
+      - "You need to decide what drink you want. Say: tea or coffee"
+      - "Just say: tea or coffee"
     events:
       # event trigger #1
       choose_tea:
@@ -31,15 +38,24 @@ steps:
         next: coffee_strength_choice
 
   coffee_strength_choice:
-    reprompt: "Sorry, I didn't understand, what is your desired coffee strength?"
-    help: "Say: brew it weak or brew it strong"
+    reprompt:
+      - "Sorry, I didn't understand, what is your desired coffee strength?"
+      - "Say it again, what coffee strength do you prefer?"
+    help:
+      - "Say brew it weak or brew it strong"
+      - "Please define coffee strength: weak or strong?"
     events:
       choose_coffee_strength:
         next: drink_amount_choice
 
   drink_amount_choice:
-    reprompt: "Sorry, I didn't understand, how big your drink must be?"
-    help: "Say: make small or make big"
+    reprompt:
+      - "Sorry, I didn't understand, how big your drink must be?"
+      - "Please say, should it be small or big?"
+    help:
+      - "On the current step you need to choose amount of your drink"
+      - "Say small or big"
+
     events:
       choose_drink_amount:
         next: done
