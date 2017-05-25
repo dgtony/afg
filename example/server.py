@@ -11,12 +11,12 @@ sup = Supervisor("scenario.yaml")
 @ask.on_session_started
 @sup.start
 def new_session():
-    app.logger.debug('new session started')
+    app.logger.debug('new user session started')
 
 
 @sup.stop
 def close_user_session():
-    logger.debug("user session stopped")
+    app.logger.debug("user session stopped")
 
 
 @ask.session_ended
@@ -81,12 +81,13 @@ def choose_drink_amount(amount):
         return question(render_template('welcome'))
 
     close_user_session()
-    return statement(render_template('drink_ready', drink=drink))
+    return statement(render_template('drink_ready', drink=drink, amount=amount))
 
 
 # stub
 def make_tea(amount):
     pass
+
 
 def make_coffee(amount, strength):
     pass

@@ -1,0 +1,69 @@
+#================
+# Intent schema
+#================
+
+{
+  "intents": [
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    },
+    {
+      "intent": "ChooseTeaIntent"
+    },
+    {
+      "intent": "ChooseCoffeeIntent"
+    },
+    {
+      "intent": "CoffeeStrengthIntent",
+      "slots": [
+        {
+          "name": "strength",
+          "type": "COFFEE_STRENGTH"
+        }
+      ]
+    },
+    {
+      "intent": "DrinkAmountIntent",
+      "slots": [
+        {
+          "name": "amount",
+          "type": "DRINK_AMOUNT"
+        }
+      ]
+    }
+  ]
+}
+
+#====================
+# Custom slot types
+#====================
+
+COFFEE_STRENGTH		weak  | strong
+DRINK_AMOUNT		small | big
+
+
+#====================
+# Sample Utterances
+#====================
+
+ChooseTeaIntent tea
+ChooseTeaIntent tea please
+ChooseTeaIntent I would like a tea
+
+ChooseCoffeeIntent coffee
+ChooseCoffeeIntent coffee please
+ChooseCoffeeIntent I would like a coffee
+
+CoffeeStrengthIntent {strength}
+CoffeeStrengthIntent make it {strength}
+CoffeeStrengthIntent I prefer {strength}
+
+DrinkAmountIntent {amount}
+DrinkAmountIntent {amount} please
+DrinkAmountIntent sure {amount}

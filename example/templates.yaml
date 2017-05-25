@@ -4,7 +4,7 @@ coffee_strength: "Would you like to brew weak or strong coffee?"
 
 drink_amount: "Would you like to make it big or small?"
 
-drink_ready: "Ok, your {{ drink }} will be ready soon"
+drink_ready: "Ok, your {{ amount }} {{ drink }} will be ready soon"
 
 stop: "See you later"
 
