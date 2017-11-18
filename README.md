@@ -140,7 +140,7 @@ def new_session():
 
 @sup.stop
 def close_user_session():
-    logger.debug("user session stopped")
+    app.logger.debug("user session stopped")
 
 
 @ask.session_ended
