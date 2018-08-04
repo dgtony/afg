@@ -149,7 +149,9 @@ def session_ended():
     return "", 200
 ```
 
-When user session starts we need to inform supervisor about it with simple `start` decorator. Open sessions also must be properly cleaned after conversation with `close_user_session` function. Maximum session lifetime by default is one hour. After that time all idle (unused) sessions in supervisor will be forced closed and its state machines will be removed.
+When user session starts we need to inform supervisor about it with simple `start` decorator. Please note that order of stacked decorators matters: `ask.on_session_started` must precede `sup.start` for the proper initialization.
+
+Open sessions also must be properly cleaned after conversation with `close_user_session` function. Maximum session lifetime by default is one hour. After that time all idle (unused) sessions in supervisor will be forced closed and its state machines will be removed.
 
 It is very convinient to give user help information depending on the current step. 
 
